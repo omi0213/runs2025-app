@@ -148,20 +148,20 @@ def PDF発行(name, event):
     c.drawCentredString(width/2, height-100, "RUNS2025")
     
     c.setFont(font_name, 20)
-    c.drawCentredString(width/2, height-150, f"種目：{event}")
+    c.drawCentredString(width/2, height-200, f"種目：{event}")
     
     c.setFont(font_name, 20)
-    c.drawCentredString(width/2, height-200, f"名前：{name}")
+    c.drawCentredString(width/2, height-250, f"名前：{name}")
     
     c.setFont(font_name, 20)
-    c.drawCentredString(width/2, height-250, f"記録：{記録}")
+    c.drawCentredString(width/2, height-300, f"記録：{記録}")
+    
+    c.setFont(font_name, 24)
+    c.drawCentredString(width/2, height-380, "NICE RUNS!!")
     
     c.setFont(font_name, 20)
-    c.drawCentredString(width/2, height-320, "NICE RUNS!!")
-    
-    c.setFont(font_name, 14)
-    c.drawCentredString(width/2, height-400, f"{datetime.now().strftime('2025年%m月%d日')}")
-    c.drawCentredString(width/2, height-420, "SHONAN RUNS")
+    c.drawCentredString(width/2, height-440, f"{datetime.now().strftime('2025年%m月%d日')}")
+    c.drawCentredString(width/2, height-460, "SHONAN RUNS")
     
     c.setStrokeColorRGB(1,0.84,0)
     c.setLineWidth(3)
