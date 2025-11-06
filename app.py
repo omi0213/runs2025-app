@@ -81,7 +81,7 @@ function closePreview() { document.getElementById('preview-container').style.dis
 function getPDF() { previewPDF(); }
 function loadRecords() {
     fetch('/records').then(r=>r.json()).then(data=>{
-        document.getElementById('records').innerHTML = data.map(r⇒`<div>${r['名前']}: ${r['種目']} ${r['記録']}</div>`).join('') || 'データなし';
+        document.getElementById('records').innerHTML = data.map(r=>`<div>${r['名前']}: ${r['種目']} ${r['記録']}</div>`).join('') || 'データなし';
     });
 }
 loadRecords();
