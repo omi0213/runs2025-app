@@ -46,7 +46,6 @@ button{padding:10px 20px;margin:5px;background:#ff6b6b;color:white;border:none;b
     <option value="3000m" selected>3000m走</option>
 </select>
 <button onclick="previewPDF()">プレビュー</button>
-<button onclick="getPDF()">ダウンロード</button>
 <div id="result"></div>
 <div id="preview-container" class="preview-container">
     <h3>プレビュー</h3>
@@ -115,11 +114,11 @@ def PDFプレビュー(name, event):
     記録 = 該当.iloc[0]['記録']
     preview_html = f'''
     <div style="padding:30px;border:3px solid gold;background:white;width:300px;margin:auto;">
-        <div style="text-align:center;font-size:24px;">RUNS2025</div>
+        <div style="text-align:center;font-size:36px;">RUNS2025</div>
         <div style="text-align:center;font-size:20px;margin:20px 0;">種目：{event}</div>
-        <div style="text-align:center;font-size:18px;margin:20px 0;">名前：{name}</div>
-        <div style="text-align:center;font-size:36px;color:red;">記録：{記録}</div>
-        <div style="text-align:center;font-size:20px;margin:20px 0;">NICE RUNS!!</div>
+        <div style="text-align:center;font-size:20px;margin:20px 0;">名前：{name}</div>
+        <div style="text-align:center;font-size:20px;margin:20px 0;">記録：{記録}</div>
+        <div style="text-align:center;font-size:24px;margin:20px 0;">NICE RUNS!!</div>
         <div style="text-align:center;font-size:14px;">{datetime.now().strftime('2025年%m月%d日')}</div>
     </div>
     '''
