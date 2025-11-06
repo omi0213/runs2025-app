@@ -11,19 +11,18 @@ import os
 app = Flask(__name__)
 記録ファイル = "runs2025.csv"
 
-# フォント設定
+# フォント登録（簡潔版）
 def フォント登録():
-    # Mac標準フォント
     font_paths = ['/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc']
     for path in font_paths:
         try:
             pdfmetrics.registerFont(TTFont('Japanese', path))
-            print(f"フォントOK: {path}")
+            print("フォントOK")
             return True
         except Exception as e:
             print(f"フォントエラー: {e}")
             continue
-    print("フォント登録失敗: 標準フォントなし")
+    print("フォント登録失敗")
     return False
 
 フォントOK = フォント登録()
@@ -99,4 +98,82 @@ def データ読み込み():
         df.columns = ['名前', '種目', '記録']
         return df
     else:
-       
+        print(f"{記録ファイル} が見つかりません。")
+        return pd.DataFrame(columns=['名前', '種目', '記録'])
+
+@app.route('/')
+def ホーム():
+    return render_template_string(HTML)
+
+@app.route('/records')
+def 全記録():
+    df = データ読み込み()
+    return df.to_dict('records')
+
+@app.route('/preview/<name>/<event>')
+def PDFプレビュー(name, event):
+    df = データ読み込み()
+    該当 = df[(df['名前'] == name) & (df['種目'] == event)]
+    if 該当.empty:
+        return {'error': f'"{name}" の {event} の記録がありません'}
+    
+    記録 = 該当.iloc[0]['記録']
+    preview_html = f'''
+    <div style="padding:30px;border:3px solid gold;background:white;width:300px;margin:auto;">
+        <div style="text-align:center;font-size:24px;">RUNS2025</div>
+        <div style="text-align:center;font-size:20px;margin:20px 0;">種目：{event}</div>
+        <div style="text-align:center;font-size:18px;margin:20px 0;">名前：{name}</div>
+        <div style="text-align:center;font-size:36px;color:red;">記録：{記録}</div>
+        <div style="text-align:center;font-size:20px;margin:20px 0;">NICE RUNS!!</div>
+        <div style="text-align:center;font-size:14px;">{datetime.now().strftime('2025年%m月%d日')}</div>
+    </div>
+    '''
+    return {'html': preview_html, 'url': f'/pdf/{name}/{event}'}
+
+@app.route('/pdf/<name>/<event>')
+def PDF発行(name, event):
+    df = データ読み込み()
+    該当 = df[(df['名前'] == name) & (df['種目'] == event)]
+    if 該当.empty:
+        return f'<h1>記録がありません</h1>'
+    
+    記録 = 該当.iloc[0]['記録']
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=B5)
+    width, height = B5
+    
+    c.setFillColorRGB(1,1,1)
+    c.rect(0,0,width,height,fill=1)
+    c.setFillColorRGB(0,0,0)
+    
+    font_name = "Japanese" if フォントOK else "Helvetica-Bold"
+    
+    c.setFont(font_name, 24)
+    c.drawCentredString(width/2, height-100, "RUNS2025")
+    
+    c.setFont(font_name, 20)
+    c.drawCentredString(width/2, height-150, f"種目：{event}")
+    
+    c.setFont(font_name, 18)
+    c.drawCentredString(width/2, height-200, f"名前：{name}")
+    
+    c.setFont(font_name, 36)
+    c.drawCentredString(width/2, height-250, f"記録：{記録}")
+    
+    c.setFont(font_name, 20)
+    c.drawCentredString(width/2, height-300, "NICE RUNS!!")
+    
+    c.setFont(font_name, 14)
+    c.drawCentredString(width/2, height-380, f"{datetime.now().strftime('2025年%m月%d日')}")
+    c.drawCentredString(width/2, height-410, "SHONAN RUNS")
+    
+    c.setStrokeColorRGB(1,0.84,0)
+    c.setLineWidth(3)
+    c.rect(20,20,width-40,height-40)
+    
+    c.save()
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name=f"RUNS2025_{name}_{event}.pdf")
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5001)
