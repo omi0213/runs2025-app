@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file, render_template_string
+from flask import Flask, send_file, render_template_string
 import pandas as pd
 import io
 from reportlab.lib.pagesizes import B5
@@ -11,12 +11,12 @@ import os
 app = Flask(__name__)
 記録ファイル = "runs2025.csv"
 
-# フォント登録（IPAexゴシックを同梱）
+# フォント登録（IPAexGothicで統一）
 def フォント登録():
-    font_path = 'ipaexg.ttf'  # 同梱ファイル
+    font_path = 'ipaexg.ttf'
     if os.path.exists(font_path):
         try:
-            pdfmetrics.registerFont(TTFont('Japanese', font_path))
+            pdfmetrics.registerFont(TTFont('IPAexGothic', font_path))
             print(f"フォントOK: {font_path}")
             return True
         except Exception as e:
@@ -26,8 +26,6 @@ def フォント登録():
     return False
 
 フォントOK = フォント登録()
-
-# HTML（略）
 
 HTML = '''
 <!DOCTYPE html>
@@ -83,7 +81,7 @@ function closePreview() { document.getElementById('preview-container').style.dis
 function getPDF() { previewPDF(); }
 function loadRecords() {
     fetch('/records').then(r=>r.json()).then(data=>{
-        document.getElementById('records').innerHTML = data.map(r=>`<div>${r['名前']}: ${r['種目']} ${r['記録']}</div>`).join('') || 'データなし';
+        document.getElementById('records').innerHTML = data.map(r⇒`<div>${r['名前']}: ${r['種目']} ${r['記録']}</div>`).join('') || 'データなし';
     });
 }
 loadRecords();
@@ -92,16 +90,12 @@ loadRecords();
 '''
 
 def データ読み込み():
-    print(f"CSVチェック: {os.path.exists(記録ファイル)}")
     if os.path.exists(記録ファイル):
         df = pd.read_csv(記録ファイル, encoding='utf-8')
-        print(f"CSVデータ: {len(df)}行")
         df = df.iloc[:, :3]
         df.columns = ['名前', '種目', '記録']
         return df
-    else:
-        print(f"{記録ファイル} が見つかりません。")
-        return pd.DataFrame(columns=['名前', '種目', '記録'])
+    return pd.DataFrame(columns=['名前', '種目', '記録'])
 
 @app.route('/')
 def ホーム():
@@ -109,8 +103,7 @@ def ホーム():
 
 @app.route('/records')
 def 全記録():
-    df = データ読み込み()
-    return df.to_dict('records')
+    return データ読み込み().to_dict('records')
 
 @app.route('/preview/<name>/<event>')
 def PDFプレビュー(name, event):
@@ -137,7 +130,7 @@ def PDF発行(name, event):
     df = データ読み込み()
     該当 = df[(df['名前'] == name) & (df['種目'] == event)]
     if 該当.empty:
-        return f'<h1>記録がありません</h1>'
+        return '<h1>記録がありません</h1>'
     
     記録 = 該当.iloc[0]['記録']
     buffer = io.BytesIO()
@@ -148,7 +141,8 @@ def PDF発行(name, event):
     c.rect(0,0,width,height,fill=1)
     c.setFillColorRGB(0,0,0)
     
-    font_name = "Japanese" if フォントOK else "Helvetica-Bold"
+    # フォント名を統一！
+    font_name = "IPAexGothic" if フォントOK else "Helvetica-Bold"
     
     c.setFont(font_name, 24)
     c.drawCentredString(width/2, height-100, "RUNS2025")
