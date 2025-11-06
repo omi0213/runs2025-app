@@ -11,21 +11,23 @@ import os
 app = Flask(__name__)
 記録ファイル = "runs2025.csv"
 
-# フォント登録（簡潔版）
+# フォント登録（IPAexゴシックを同梱）
 def フォント登録():
-    font_paths = ['/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc']
-    for path in font_paths:
+    font_path = 'ipaexg.ttf'  # 同梱ファイル
+    if os.path.exists(font_path):
         try:
-            pdfmetrics.registerFont(TTFont('Japanese', path))
-            print("フォントOK")
+            pdfmetrics.registerFont(TTFont('Japanese', font_path))
+            print(f"フォントOK: {font_path}")
             return True
         except Exception as e:
             print(f"フォントエラー: {e}")
-            continue
-    print("フォント登録失敗")
+    else:
+        print(f"フォントファイルなし: {font_path}")
     return False
 
 フォントOK = フォント登録()
+
+# HTML（略）
 
 HTML = '''
 <!DOCTYPE html>
